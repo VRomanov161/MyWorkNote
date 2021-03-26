@@ -9,9 +9,13 @@
 #### $ docker pull [имя_образа] - скачать образ
 
 #### $ Create a new image from a container’s changes
-
-docker commit [option] [container] [repository[:TAG]]
 ```
+docker commit [option] [container] [repository[:TAG]]
+
+```
+
+```
+
 отобразить все конейтенры (в т.ч. остановленные)
 -a
 ===============================================
