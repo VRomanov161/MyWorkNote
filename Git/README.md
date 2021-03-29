@@ -111,3 +111,48 @@ git clone https://github.com/VRomanov161/MyWorkNote.git
 ```
 git push origin
 ```
+
+#### Посмотреть ветки
+
+```
+# git branch
+
+```
+
+#### Создать branch
+
+```
+# git branch [имя_ветки]
+
+```
+
+#### Перейти на branch
+
+```
+# git checkout [имя_ветки]
+
+```
+
+
+#### удалить branch
+
+```
+# git branch -d [имя_ветки]
+
+```
+
+
+#### создать и сразу перейти на branch
+
+```
+# git checkout -b [имя_ветки]
+
+```
+
+
+#### соеденить ветвь с мастером
+
+```
+# git merge [имя_ветки которую нужно добавить к мастеру]
+
+```
