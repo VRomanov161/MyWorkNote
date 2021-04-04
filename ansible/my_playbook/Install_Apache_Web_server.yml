@@ -1,0 +1,28 @@
+
+---
+- name: Install Apache Web server
+  hosts: all
+  become: yes
+
+  tasks:
+
+  - name: install Apache
+    yum:
+      name: httpd
+      state: latest
+
+
+  - name: Start Apache and Enable
+    service:
+      name: httpd
+      state: started
+      enabled: yes
+
+######################################################################
+
+# для запуска на локальной машине
+
+---
+- name: Install Apache Web server
+  hosts: 127.0.0.1
+  connection: local

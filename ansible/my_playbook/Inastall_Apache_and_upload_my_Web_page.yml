@@ -1,0 +1,39 @@
+
+---
+- name: Install Apache Web server
+  hosts: 127.0.0.1
+  connection: local
+
+  vars:
+    sourse_file: /root/ansible/MyWebsite/index.html
+    destin_file: /var/www/html
+
+  tasks:
+
+  - name: Check and Print LINUX Version
+    debug:
+      var: ansible_os_family
+
+  - name: Install Apache Web Server
+    yum:
+      name: httpd
+      state: latest
+
+  - name: Copy My Homepage to Servers
+    copy:
+      src: "{{sourse_file}}"
+      dest: "{{destin_file}}"
+      mode: 0555
+    notify: Restart Apache
+
+  - name: Start Webserver and make it enable on boot
+    service:
+      name: httpd
+      state: started
+      enabled: yes
+
+  handlers:
+  - name: Restart Apache
+    service:
+      name: httpd
+      state: restarted

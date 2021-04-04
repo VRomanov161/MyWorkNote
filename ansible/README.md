@@ -207,6 +207,19 @@ p.s. Обязательно придерживаться формата!!
 
 ```
 
+###### Так же сожно сохранить вывод команды в переменную
+
+на примере мы сохраняем вывод команды uptime в переменную results
+
+
+```
+
+- shell: uptime
+  register: results
+
+```
+
+
 #### Циклы
 
 ```
@@ -228,4 +241,53 @@ p.s. Обязательно придерживаться формата!!
 
 т.е. сколько значений будет в loop, столько и будет циклов
 
+```
+
+#### Условия
+
+при помощи block,  таски можно обьединять в блоки.
+
+с помощью when, задаются условия, т.е. таски или блоки будут выполнятся только если условие является истинной
+
+```
+
+[root@vromanov ansible]# vi block.yml
+- name: Test Blocks
+  hosts: all
+  become: yes
+
+  vars:
+
+  tasks:
+
+  - block:
+
+    - name: Install Pakages
+      yum:
+        name: tree
+        state: latest
+
+    - name: Create Folder
+      file:
+        path: "/home/folder_123/"
+        state: directory
+
+    when: ansible_hostname == "vfedotov"
+
+
+  - name: Copy file
+    copy:
+      src: file222
+      dest: /home/
+
+    when: ansible_hostname == "vfedotov"
+
+```
+#### localhost
+
+для использования на локальной машине можно использовать конструкцию:
+
+```
+
+ansible --connection=local 127.0.0.1 [модули]
 ```
