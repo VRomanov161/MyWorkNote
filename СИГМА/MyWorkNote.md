@@ -1577,6 +1577,7 @@ WHERE JOB_NAME = 'JOB_FOR_STREAMS';             --имя джобы
 
 
 # -- Размер по всем табличным пространствам
+
 set lines 300
 SELECT tbm.TABLESPACE_NAME,
 round(tbm.USED_SPACE * tb.BLOCK_SIZE /(1024*1024*1024),2) USED_SPACE_GB,
@@ -1595,3 +1596,6 @@ example
 ALTER SYSTEM KILL SESSION '6119,55615,@1' IMMEDIATE;
 
 ```
+---show serial
+
+select * from gv$session where SID = 6119 and INST_ID = 1; -- подставить свои значения
