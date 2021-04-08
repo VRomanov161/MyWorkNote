@@ -1585,3 +1585,13 @@ round((tbm.TABLESPACE_SIZE - tbm.USED_SPACE) * tb.BLOCK_SIZE /(1024*1024*1024),2
 tbm.USED_PERCENT
 FROM dba_tablespace_usage_metrics tbm
 join dba_tablespaces tb on tb.TABLESPACE_NAME = tbm.TABLESPACE_NAME;
+
+
+#======================================================kill session RAC=========================================================
+
+ALTER SYSTEM KILL SESSION 'sid,serial#,@inst_id' IMMEDIATE;
+example
+```
+ALTER SYSTEM KILL SESSION '6119,55615,@1' IMMEDIATE;
+
+```
