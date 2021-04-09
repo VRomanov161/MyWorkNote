@@ -1609,3 +1609,66 @@ sed -n '/2020-04-23 19/,/2020-04-23 21/p' ./ikus.tomcat-ikus3-3.debug.ikus3-debu
 
 sed -n '/<pattern>/,$ p' <file> # from pattern to end of file
 sed -n '/<pattern1>/,/<pattern2>/ p' <file> # from pattern1 to pattern2
+
+#=========================================размер использования Табличного простраства (TEMP)===============================
+
+--check USAGE  TBS
+
+SELECT * FROM (
+ select (100 * (SUM(a.bytes) - (c.Free)) /
+       (SUM(decode(b.maxextend, null, A.BYTES, b.maxextend * 8192)))) USED_PCT
+  from dba_data_files a,
+       sys.filext$ b,
+       (SELECT d.tablespace_name, sum(nvl(c.bytes, 0)) Free
+          FROM dba_tablespaces d, DBA_FREE_SPACE c
+         WHERE d.tablespace_name = c.tablespace_name
+           and d.tablespace_name = 'TEMP'                       --ПОДСТАВИТЬ ТБС
+         group by d.tablespace_name) c
+ WHERE a.file_id = b.file#(+)
+   and a.tablespace_name = c.tablespace_name
+ GROUP BY a.tablespace_name, c.Free
+union all
+ select 0 from dual
+) WHERE ROWNUM = 1
+
+
+
+
+#====================================Проверить использование ТБС TEMP=====================================================
+
+--check USAGE  TEMP ( in percent)
+
+select s.inst_id, s.sid, s.client_identifier, s.status, sum(round(u.blocks*8192/1024/1024,3)) "TEMP usage, Mb", s.osuser, s.machine, s.module, s.action, s.SQL_ID, TABLESPACE,
+'alter system kill session ''' || s.sid || ',' || s.SERIAL# || ',@' || s.INST_ID || ''';' KILL_SCRIPT
+from gv$session s, gv$sort_usage u where s.saddr = u.session_addr
+and u.blocks*8192/1024 > 128 -- отсеиваем мелочь
+group by s.inst_id, s.sid, s.osuser, s.machine, s.module, s.action, s.client_identifier,s.status,s.SQL_ID,TABLESPACE,
+'alter system kill session ''' || s.sid || ',' || s.SERIAL# || ',@' || s.INST_ID || ''';'
+order by "TEMP usage, Mb" desc
+
+--check USAGE  TEMP (in mb)
+
+ SELECT a.tablespace_name,ROUND((c.total_blocks*b.block_size)/1024/1024/1024,2)
+"Total Size [GB]",ROUND((a.used_blocks*b.block_size)/1024/1024/1024,2) "Used_size[GB]",
+ROUND(((c.total_blocks-a.used_blocks)*b.block_size)/1024/1024/1024,2) "Free_size[GB]",
+ROUND((a.max_blocks*b.block_size)/1024/1024/1024,2) "Max_Size_Ever_Used[GB]",            
+ROUND((a.max_used_blocks*b.block_size)/1024/1024/1024,2) "MaxSize_ever_Used_by_Sorts[GB]" ,
+ROUND((a.used_blocks/c.total_blocks)*100,2) "Used Percentage"
+FROM V$sort_segment a,dba_tablespaces b,(SELECT tablespace_name,SUM(blocks)
+total_blocks FROM dba_temp_files GROUP by tablespace_name) c
+WHERE a.tablespace_name=b.tablespace_name AND a.tablespace_name=c.tablespace_name
+
+
+-- Query to check TEMP USAGE :
+
+SELECT d.status "Status", d.tablespace_name "Name", d.contents "Type", d.extent_management
+"ExtManag",
+TO_CHAR(NVL(a.bytes / 1024 / 1024, 0),'99,999,990.900') "Size (M)", TO_CHAR(NVL(t.bytes,
+0)/1024/1024,'99999,999.999') ||'/'||TO_CHAR(NVL(a.bytes/1024/1024, 0),'99999,999.999') "Used (M)",
+TO_CHAR(NVL(t.bytes / a.bytes * 100, 0), '990.00') "Used %"
+FROM sys.dba_tablespaces d, (select tablespace_name, sum(bytes) bytes from dba_temp_files group by
+tablespace_name) a,
+(select tablespace_name, sum(bytes_cached) bytes from
+v$temp_extent_pool group by tablespace_name) t
+WHERE d.tablespace_name = a.tablespace_name(+) AND d.tablespace_name = t.tablespace_name(+)
+AND d.extent_management like 'LOCAL' AND d.contents like 'TEMPORARY';
