@@ -1599,3 +1599,13 @@ ALTER SYSTEM KILL SESSION '6119,55615,@1' IMMEDIATE;
 ---show serial
 
 select * from gv$session where SID = 6119 and INST_ID = 1; -- подставить свои значения
+
+
+#====================================================вырезать фразмент от и до==================================================
+
+--grep with specific range of data
+sed -n '/2020-04-23 19/,/2020-04-23 21/p' ./ikus.tomcat-ikus3-2.debug.ikus3-debug.2020-04-23.log > ./ikus.tomcat-ikus3-2.debug.log
+sed -n '/2020-04-23 19/,/2020-04-23 21/p' ./ikus.tomcat-ikus3-3.debug.ikus3-debug.2020-04-23.log > ./ikus.tomcat-ikus3-3.debug.log
+
+sed -n '/<pattern>/,$ p' <file> # from pattern to end of file
+sed -n '/<pattern1>/,/<pattern2>/ p' <file> # from pattern1 to pattern2
