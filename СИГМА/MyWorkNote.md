@@ -1612,7 +1612,7 @@ sed -n '/<pattern1>/,/<pattern2>/ p' <file> # from pattern1 to pattern2
 
 #=========================================размер использования Табличного простраства (TEMP)===============================
 
---check USAGE  TBS
+--check USAGE  TBS (from zabbix)
 
 SELECT * FROM (
  select (100 * (SUM(a.bytes) - (c.Free)) /
@@ -1636,7 +1636,7 @@ union all
 
 #====================================Проверить использование ТБС TEMP=====================================================
 
---check USAGE  TEMP ( in percent)
+--check USAGE  TEMP (with script for kill)
 
 select s.inst_id, s.sid, s.client_identifier, s.status, sum(round(u.blocks*8192/1024/1024,3)) "TEMP usage, Mb", s.osuser, s.machine, s.module, s.action, s.SQL_ID, TABLESPACE,
 'alter system kill session ''' || s.sid || ',' || s.SERIAL# || ',@' || s.INST_ID || ''';' KILL_SCRIPT
@@ -1672,3 +1672,17 @@ tablespace_name) a,
 v$temp_extent_pool group by tablespace_name) t
 WHERE d.tablespace_name = a.tablespace_name(+) AND d.tablespace_name = t.tablespace_name(+)
 AND d.extent_management like 'LOCAL' AND d.contents like 'TEMPORARY';
+
+--Query to check TEMP USAGE 
+
+SELECT A.tablespace_name tablespace, D.mb_total,
+    SUM (A.used_blocks * D.block_size) / 1024 / 1024 mb_used,
+    D.mb_total - SUM (A.used_blocks * D.block_size) / 1024 / 1024 mb_free
+   FROM v$sort_segment A,
+    (
+   SELECT B.name, C.block_size, SUM (C.bytes) / 1024 / 1024 mb_total
+    FROM v$tablespace B, v$tempfile C
+     WHERE B.ts#= C.ts#
+      GROUP BY B.name, C.block_size) D
+    WHERE A.tablespace_name = D.name
+    GROUP by A.tablespace_name, D.mb_total;
