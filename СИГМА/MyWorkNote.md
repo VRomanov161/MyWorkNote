@@ -1686,3 +1686,9 @@ SELECT A.tablespace_name tablespace, D.mb_total,
       GROUP BY B.name, C.block_size) D
     WHERE A.tablespace_name = D.name
     GROUP by A.tablespace_name, D.mb_total;
+    
+# ==============================================job status
+
+--show job status
+
+    Select JOB_NAME, state, START_DATE, owner from DBA_SCHEDULER_JOBS where JOB_NAME = 'FULL_DZ'; -- подставить имя джобы
