@@ -1694,3 +1694,8 @@ SELECT A.tablespace_name tablespace, D.mb_total,
 --show job status
 
     Select JOB_NAME, state, START_DATE, owner from DBA_SCHEDULER_JOBS where JOB_NAME = 'FULL_DZ'; -- подставить имя джобы
+    
+    
+# =========================================check tiger version
+--версия схемы tiger
+select * from V_VERSION;
