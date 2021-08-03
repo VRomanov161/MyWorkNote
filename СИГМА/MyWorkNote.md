@@ -1699,3 +1699,25 @@ SELECT A.tablespace_name tablespace, D.mb_total,
 # =========================================check tiger version
 --версия схемы tiger
 select * from V_VERSION;
+
+========================
+EXPDP ATACH AND STOP JOB  ( Коннект к джобе)
+========================
+-- find expdp JOB_NAME
+SELECT owner_name, job_name, operation, job_mode, state FROM dba_datapump_jobs;
+
+OWNER_NAME                     JOB_NAME                       OPERATION                      JOB_MODE                       STATE
+------------------------------ ------------------------------ ------------------------------ ------------------------------ ------------------------------
+SYS                            SYS_EXPORT_FULL_26             EXPORT                         FULL                        EXECUTING
+
+-- attach to job from oracle user
+expdp \'/ as sysdba\' attach=sys.SYS_EXPORT_FULL_26
+
+-- stop job
+STOP_JOB=IMMEDIATE
+
+-- Check expdp job status
+SELECT owner_name, job_name, operation, job_mode, state FROM dba_datapump_jobs;
+OWNER_NAME                     JOB_NAME                       OPERATION                      JOB_MODE                       STATE
+------------------------------ ------------------------------ ------------------------------ ------------------------------ ------------------------------
+SYS                            SYS_EXPORT_FULL_26             EXPORT                         FULL                        STOPPING
